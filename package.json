@@ -2,12 +2,19 @@
   "name": "dayflow-hrms",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Dayflow — Human Resource Management System",
   "scripts": {
-    "setup": "npm --prefix server install && npm --prefix client install && npm run seed",
-    "seed": "npm --prefix server run seed",
-    "server": "npm --prefix server start",
-    "client": "npm --prefix client run dev",
-    "build": "npm --prefix client run build"
+    "setup": "npm install && npm --prefix frontend install && npm run seed",
+    "seed": "node --no-warnings --experimental-sqlite database/seed.js",
+    "backend": "node --no-warnings --experimental-sqlite backend/server.js",
+    "frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
   }
 }

@@ -17,7 +17,7 @@ processing, payslip generation, and analytics.
 | Database  | SQLite (via the built-in `node:sqlite` module)  |
 | Auth      | JWT (`jsonwebtoken`) + bcrypt password hashing   |
 
-No database server to install — SQLite writes to a single `server/dayflow.db` file.
+No database server to install — SQLite writes to a single `dayflow.db` file at the project root.
 
 ---
 
@@ -29,15 +29,15 @@ Requires **Node.js 22.5 or newer** (the `node:sqlite` module ships with it).
 npm run setup
 ```
 
-That installs both workspaces and seeds the database. Then start the two processes
+That installs both halves and seeds the database. Then start the two processes
 in separate terminals:
 
 ```bash
-npm run server
+npm run backend
 ```
 
 ```bash
-npm run client
+npm run frontend
 ```
 
 Open **http://localhost:5173**. Vite proxies `/api` to the backend on port 4000.
@@ -55,54 +55,65 @@ Open **http://localhost:5173**. Vite proxies `/api` to the backend on port 4000.
 
 `npm run seed` resets the database to this state.
 
-> Payslips appear only after payroll has been processed. Sign in as Admin →
-> **Run Payroll** → pick a month → **Run Payroll**.
+> Payslips appear only after payroll has been processed. Sign in as Admin ->
+> **Run Payroll** -> pick a month -> **Run Payroll**.
 
 ---
 
 ## Project structure
 
-Files are grouped by **function**, one folder per feature module.
+The repository is divided into four areas, one per team member.
 
 ```
 dayflow-hrms/
-├── server/src/
-│   ├── config/database.js               Schema, connection, default settings
-│   ├── middleware/authentication.js     JWT verification, role guards
-│   ├── utils/dateHelpers.js             Timezone-safe calendar-date helpers
-│   ├── database/seed.js                 Demo data
-│   ├── modules/
-│   │   ├── authentication/authRoutes.js     Sign up, verify, sign in
-│   │   ├── employees/employeeRoutes.js      Profiles, salary structure, leave balance
-│   │   ├── departments/departmentRoutes.js  Department CRUD
-│   │   ├── attendance/attendanceRoutes.js   Check-in/out, daily & weekly views
-│   │   ├── leave/leaveRoutes.js             Apply, approve, reject
-│   │   ├── payroll/payrollRoutes.js         Payroll runs, payslips
-│   │   ├── analytics/analyticsRoutes.js     Reports and charts data
-│   │   ├── settings/settingsRoutes.js       Company and policy configuration
-│   │   └── dashboard/dashboardRoutes.js     Role-aware dashboard aggregation
-│   └── server.js                        Express app and route mounting
-│
-└── client/src/
-    ├── shared/
-    │   ├── api/apiClient.js             fetch wrapper, JWT header, formatters
-    │   ├── context/AuthContext.jsx      Auth state, session restore
-    │   └── layout/AppLayout.jsx         Sidebar, top bar, role-aware navigation
-    ├── features/
-    │   ├── authentication/              LoginPage, SignupPage, VerifyPage
-    │   ├── dashboard/                   DashboardPage
-    │   ├── employees/                   EmployeeListPage, EmployeeDetailPage, ProfilePage
-    │   ├── departments/                 DepartmentsPage
-    │   ├── attendance/                  AttendancePage
-    │   ├── leave/                       LeavePage
-    │   ├── payroll/                     PayrollPage, PayslipListPage,
-    │   │                                PayslipDocument, SalaryPage
-    │   ├── analytics/                   AnalyticsPage
-    │   └── settings/                    SettingsPage
-    ├── styles/                          base, auth, forms, layout, components,
-    │                                    profile, charts, payslip, print
-    ├── App.jsx                          Role-gated routes
-    └── main.jsx                         Entry point
+|
++-- frontend/                 React application
+|   +-- src/
+|   |   +-- shared/           API client, auth context, app layout
+|   |   +-- features/         One folder per feature
+|   |   |   +-- authentication/   LoginPage, SignupPage, VerifyPage
+|   |   |   +-- dashboard/        DashboardPage
+|   |   |   +-- employees/        EmployeeListPage, EmployeeDetailPage, ProfilePage
+|   |   |   +-- departments/      DepartmentsPage
+|   |   |   +-- attendance/       AttendancePage
+|   |   |   +-- leave/            LeavePage
+|   |   |   +-- payroll/          PayrollPage, PayslipListPage, PayslipDocument, SalaryPage
+|   |   |   +-- analytics/        AnalyticsPage
+|   |   |   +-- settings/         SettingsPage
+|   |   +-- styles/           Split by function
+|   |   +-- App.jsx           Role-gated routes
+|   +-- vite.config.js
+|
++-- backend/                  Express API
+|   +-- server.js             App wiring and route mounting
+|   +-- middleware/           JWT verification, role guards
+|   +-- utils/                Timezone-safe date helpers
+|   +-- modules/              One folder per domain
+|       +-- authentication/   Sign up, verify, sign in
+|       +-- employees/        Profiles, salary, leave balance
+|       +-- departments/      Department CRUD
+|       +-- attendance/       Check-in/out, daily and weekly views
+|       +-- leave/            Apply, approve, reject
+|       +-- payroll/          Payroll runs, payslips
+|       +-- analytics/        Reporting
+|       +-- settings/         Configuration
+|       +-- dashboard/        Role-aware aggregation
+|
++-- database/                 Persistence layer
+|   +-- connection.js         SQLite connection and file path
+|   +-- schema.js             Nine-table DDL
+|   +-- settings.js           Default configuration
+|   +-- index.js              Entry point exporting the shared handle
+|   +-- seed.js               Demo data
+|
++-- workflow/                 Project documentation
+    +-- srs.md                Software Requirements Specification
+    +-- er-diagram.md         Entity-relationship model
+    +-- use-case-diagram.md   Actors and use cases
+    +-- process-flows.md      Sequence and flow diagrams
+    +-- database-design.md    Table reference
+    +-- api-reference.md      REST endpoints
+    +-- test-plan.md          Test cases and results
 ```
 
 ### Database tables
@@ -179,13 +190,13 @@ dayflow-hrms/
 
 | SRS  | Requirement                       | Implementation |
 |------|-----------------------------------|----------------|
-| 3.1.1 | Sign Up (Employee ID, email, password, role) | `modules/authentication/authRoutes.js` → `POST /api/auth/signup` |
+| 3.1.1 | Sign Up (Employee ID, email, password, role) | `backend/modules/authentication/authRoutes.js` → `POST /api/auth/signup` |
 | 3.1.1 | Password security rules           | `validatePassword()` |
 | 3.1.1 | Email verification required       | `POST /api/auth/verify`; unverified logins refused |
-| 3.1.2 | Sign In, error messages, redirect | `POST /api/auth/login`, `features/authentication/LoginPage.jsx` |
-| 3.2.1 | Employee dashboard + quick actions| `features/dashboard/DashboardPage.jsx` |
+| 3.1.2 | Sign In, error messages, redirect | `POST /api/auth/login`, `frontend/src/features/authentication/LoginPage.jsx` |
+| 3.2.1 | Employee dashboard + quick actions| `frontend/src/features/dashboard/DashboardPage.jsx` |
 | 3.2.2 | Admin dashboard, employee list    | Same file, manager branch |
-| 3.3.1 | View profile (personal, job, salary, documents, picture) | `features/employees/ProfilePage.jsx` |
+| 3.3.1 | View profile (personal, job, salary, documents, picture) | `frontend/src/features/employees/ProfilePage.jsx` |
 | 3.3.2 | Employee edits limited fields     | `EMPLOYEE_EDITABLE = phone, address, photo` |
 | 3.3.2 | Admin edits all fields            | `MANAGER_EDITABLE`, `EmployeeDetailPage.jsx` |
 | 3.4.1 | Check-in / check-out              | `POST /api/attendance/check-in`, `/check-out` |
@@ -195,9 +206,9 @@ dayflow-hrms/
 | 3.5.1 | Apply for leave                   | `POST /api/leaves` |
 | 3.5.2 | Approve/reject with comments      | `PUT /api/leaves/:id/approve` and `/reject` |
 | 3.5.2 | "Changes reflect immediately"     | Approval writes `leave` rows into `attendance` |
-| 3.6.1 | Payroll read-only for employees   | `features/payroll/SalaryPage.jsx`; no employee write route |
+| 3.6.1 | Payroll read-only for employees   | `frontend/src/features/payroll/SalaryPage.jsx`; no employee write route |
 | 3.6.2 | Admin updates salary structure    | `PUT /api/employees/:id/salary` |
-| §6    | Analytics & reports dashboard     | `modules/analytics/analyticsRoutes.js` |
+| §6    | Analytics & reports dashboard     | `backend/modules/analytics/analyticsRoutes.js` |
 
 ---
 
@@ -205,12 +216,12 @@ dayflow-hrms/
 
 - **Email verification is simulated.** There is no SMTP server, so sign-up returns
   the verification token and the app hands you to the verify screen. Wiring a real
-  mailer means replacing that one response in `authRoutes.js`.
+  mailer means replacing that one response in `backend/modules/authentication/authRoutes.js`.
 - **Payslip PDF** uses the browser's print-to-PDF via a dedicated print stylesheet,
   so the output matches the screen exactly without a PDF dependency.
 - **Dates are timezone-safe.** `Date#toISOString()` converts to UTC first, which
   shifts the calendar day backwards in any zone ahead of UTC (IST included).
-  `utils/dateHelpers.js` reads local date components instead, so weekly ranges and
+  `backend/utils/dateHelpers.js` reads local date components instead, so weekly ranges and
   leave date spans stay correct.
 
 ## Possible next steps

@@ -1,0 +1,13 @@
+{
+  "name": "dayflow-hrms",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Dayflow — Human Resource Management System",
+  "scripts": {
+    "setup": "npm --prefix server install && npm --prefix client install && npm run seed",
+    "seed": "npm --prefix server run seed",
+    "server": "npm --prefix server start",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build"
+  }
+}

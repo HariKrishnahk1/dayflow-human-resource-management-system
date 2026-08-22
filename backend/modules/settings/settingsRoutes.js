@@ -1,5 +1,5 @@
 import express from 'express';
-import { db, getSettings } from '../../config/database.js';
+import { db, getSettings } from '../../../database/index.js';
 import { requireAuth, requireManager } from '../../middleware/authentication.js';
 
 const router = express.Router();

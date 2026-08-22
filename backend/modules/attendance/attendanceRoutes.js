@@ -1,5 +1,5 @@
 import express from 'express';
-import { db } from '../../config/database.js';
+import { db } from '../../../database/index.js';
 import { requireAuth, requireManager, isManager, resolveEmployeeId } from '../../middleware/authentication.js';
 import { today, nowTime, weekRange } from '../../utils/dateHelpers.js';
 

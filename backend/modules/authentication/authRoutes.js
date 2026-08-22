@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
-import { db } from '../../config/database.js';
+import { db } from '../../../database/index.js';
 import { signToken, requireAuth } from '../../middleware/authentication.js';
 
 const router = express.Router();

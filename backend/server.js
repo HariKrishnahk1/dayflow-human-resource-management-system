@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import './config/database.js';
+import '../database/index.js';
 import authRoutes from './modules/authentication/authRoutes.js';
 import employeeRoutes from './modules/employees/employeeRoutes.js';
 import attendanceRoutes from './modules/attendance/attendanceRoutes.js';

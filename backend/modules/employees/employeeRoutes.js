@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { db } from '../../config/database.js';
+import { db } from '../../../database/index.js';
 import { requireAuth, requireManager, isManager, resolveEmployeeId } from '../../middleware/authentication.js';
 import { validatePassword } from '../authentication/authRoutes.js';
 

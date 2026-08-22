@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { db } from '../config/database.js';
+import { db } from '../../database/index.js';
 
 export const JWT_SECRET = process.env.JWT_SECRET || 'dayflow-dev-secret-change-in-production';
 const TOKEN_TTL = '8h';

@@ -1,0 +1,10 @@
+/* Dayflow stylesheet — split by function; load order matters (base first). */
+@import './base.css';
+@import './auth.css';
+@import './forms.css';
+@import './layout.css';
+@import './components.css';
+@import './profile.css';
+@import './charts.css';
+@import './payslip.css';
+@import './print.css';

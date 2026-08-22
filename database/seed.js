@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
-import { db } from '../config/database.js';
-import { toISODate as iso } from '../utils/dateHelpers.js';
+import { db } from './index.js';
+import { toISODate as iso } from '../backend/utils/dateHelpers.js';
 
 // Wipe and rebuild, so `npm run seed` is repeatable.
 db.exec(`DELETE FROM payroll; DELETE FROM attendance; DELETE FROM leaves; DELETE FROM documents;

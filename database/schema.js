@@ -1,16 +1,12 @@
-import { DatabaseSync } from 'node:sqlite';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
+/**
+ * Dayflow HRMS relational schema.
+ *
+ * Nine tables: users, departments, employees, documents, salary_structure,
+ * attendance, leaves, payroll, settings. Every statement is idempotent, so
+ * applySchema() is safe to run on every boot.
+ */
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Two levels up from src/config/ puts the database file at the server root,
-// outside the source tree.
-const DB_PATH = process.env.DAYFLOW_DB || path.join(__dirname, '..', '..', 'dayflow.db');
-
-export const db = new DatabaseSync(DB_PATH);
-db.exec('PRAGMA foreign_keys = ON');
-
-db.exec(`
+export const SCHEMA_SQL = `
 CREATE TABLE IF NOT EXISTS users (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   emp_code      TEXT UNIQUE NOT NULL,
@@ -118,7 +114,7 @@ CREATE TABLE IF NOT EXISTS payroll (
   UNIQUE (employee_id, month, year)
 );
 
--- Simple key/value store for company-wide configuration.
+-- Key/value store for company-wide configuration.
 CREATE TABLE IF NOT EXISTS settings (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL
@@ -129,22 +125,8 @@ CREATE INDEX IF NOT EXISTS idx_leave_emp      ON leaves(employee_id);
 CREATE INDEX IF NOT EXISTS idx_leave_status   ON leaves(status);
 CREATE INDEX IF NOT EXISTS idx_payroll_period ON payroll(year, month);
 CREATE INDEX IF NOT EXISTS idx_emp_dept       ON employees(dept_id);
-`);
+`;
 
-/** Defaults are inserted once; existing values are never overwritten. */
-const DEFAULT_SETTINGS = {
-  company_name: 'Dayflow Technologies Pvt Ltd',
-  company_address: '4th Floor, Anna Salai, Chennai 600002',
-  currency: 'INR',
-  paid_leave_quota: '12',
-  sick_leave_quota: '12',
-  working_days_per_month: '22',
-};
-
-const putSetting = db.prepare('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)');
-for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) putSetting.run(key, value);
-
-export function getSettings() {
-  const rows = db.prepare('SELECT key, value FROM settings').all();
-  return rows.reduce((acc, r) => ({ ...acc, [r.key]: r.value }), {});
+export function applySchema(db) {
+  db.exec(SCHEMA_SQL);
 }

@@ -1,8 +1,0 @@
-/* ---------- printing ---------- */
-@media print {
-  body { background: #fff; }
-  .no-print, .sidebar, .topbar { display: none !important; }
-  .shell, .main, .content { display: block; padding: 0; margin: 0; }
-  .payslip { max-width: none; padding: 0; border-radius: 0; }
-  @page { margin: 14mm; }
-}

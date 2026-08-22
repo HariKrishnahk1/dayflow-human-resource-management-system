@@ -3,7 +3,9 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DB_PATH = process.env.DAYFLOW_DB || path.join(__dirname, '..', 'dayflow.db');
+// Two levels up from src/config/ puts the database file at the server root,
+// outside the source tree.
+const DB_PATH = process.env.DAYFLOW_DB || path.join(__dirname, '..', '..', 'dayflow.db');
 
 export const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA foreign_keys = ON');
